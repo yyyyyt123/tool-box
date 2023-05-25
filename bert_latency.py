@@ -3,14 +3,14 @@ import torch
 import time
 import numpy as np
 
-tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-model = BertForMaskedLM.from_pretrained("bert-base-uncased").cuda()
+model_id = "bert-base-uncased"
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = BertForMaskedLM.from_pretrained(model_id).cuda()
 
 # HyperParameters
-bs=2
-sl=32
 FP16 = True
-
+print(f"using model_id :{model_id}")
+print("Use", "FP16" if FP16 is True else "FP32", "in inference")
 # model
 model = model.half() if FP16 is True else model
 

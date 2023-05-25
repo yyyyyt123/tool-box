@@ -4,10 +4,11 @@ import numpy as np
 from transformers import BertModel
 
 # Load the BERT model into CPU memory
-model = BertModel.from_pretrained('bert-base-uncased').to('cpu')
+model_id = "bert-base-uncased"
+model = BertModel.from_pretrained(model_id).to('cpu')
 
 # Get the parameters of the first encoder layer
-first_layer_params = model.parameters()
+print(f"using model_id :{model_id}")
 
 # Store the layer parameters to disk
 bert_path = 'Bert_model.pth'                 # whole model
