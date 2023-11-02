@@ -31,20 +31,23 @@ def storage_benchmark(tensor_size: tuple, fp16_enabled: bool, display: bool = Fa
     else:
         tensor = torch.zeros(tensor_size, device=device)
     gpu_time = time.time() - start_time
-    memory_size = tensor.element_size() * tensor.numel()
-    print("Create tensor on GPU: {:<8f} sec, element_size: {:8f} MB".format(gpu_time, memory_size/1024/1024)) if display else None
+    # calculate memory size and convert to MB
+    memory_size = tensor.element_size() * tensor.numel() / 1024 / 1024
+    print("Create tensor on GPU: {:<8f} sec, element_size: {:8f} MB".format(gpu_time, memory_size)) if display else None
 
     # GPU -> CPU
     start_time = time.time()
     tensor_cpu = tensor.to('cpu')
+    torch.cuda.synchronize()
     gpu_to_cpu_time = time.time() - start_time
-    print("Move tensor from GPU to CPU: {:<8f} sec".format(gpu_to_cpu_time)) if display else None
+    print("Move tensor from GPU to CPU: {:<8f} sec, setimated GPU-CPU bandwidth:{:<8f} GBps".format(gpu_to_cpu_time, memory_size/1024/gpu_to_cpu_time)) if display else None
 
     # CPU -> DISK
     start_time = time.time()
     torch.save(tensor_cpu, 'tensor.pt')
     cpu_to_disk_time = time.time() - start_time
-    print("Move tensor from CPU to disk: {:<8f} sec".format(cpu_to_disk_time)) if display else None
+    print("Move tensor from CPU to disk: {:<8f} sec, estimated CPU-Disk bandwidth:{:<8f} GBps".format(cpu_to_disk_time, memory_size/1024/cpu_to_disk_time)) if display else None
+    torch.load('tensor.pt')
 
     # remove tensor from disk
     os.remove('tensor.pt')
